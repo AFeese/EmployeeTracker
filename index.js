@@ -18,7 +18,7 @@ async function viewAllDepartments() {
   let query = "SELECT * FROM department";
   const rows = await db.query(query);
   console.table(rows);
-}
+};
 // SELECT * FROM role;
 async function viewAllRoles() {
   console.log("");
@@ -26,7 +26,7 @@ async function viewAllRoles() {
   const rows = await db.query(query);
   console.table(rows);
   return rows;
-}
+};
 // SELECT * FROM employee;
 async function viewAllEmployees() {
   console.log("");
@@ -34,6 +34,43 @@ async function viewAllEmployees() {
   const rows = await db.query(query);
   console.table(rows);
 };
+
+//-------------------------------DEPARTMENT INFORMATION-----------------------------//
+//----GETTING ALL DEPARTMENT NAMES----//
+async function getDepartmentNames() {
+  let query = "SELECT name FROM department";
+  const rows = await db.query(query);
+  let departments = [];
+  for (const row of rows) {
+    departments.push(row.name);
+  }
+  return departments;
+};
+//----FINDS DEPARTMENT BY ID----//
+async function getDepartmentId(departmentName) {
+  let query = "SELECT * FROM department WHERE department.name=?";
+  let args = [departmentName];
+  const rows = await db.query(query, args);
+  return rows[0].id;
+};
+async function addDepartment(departmentInfo) {
+  const departmentName = departmentInfo.departmentName;
+  let query = 'INSERT into department (name) VALUES (?)';
+  let args = [departmentName];
+  const rows = await db.query(query, args);
+  console.log(`Added department named ${departmentName}`);
+};
+async function getDepartmentInfo() {
+  return inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the name of the new department?",
+        name: "departmentName"
+      }
+    ])
+};
+
 
 //-------------------------------------MAIN QUESTIONS------------------------------//
 async function mainPrompt() {
@@ -47,50 +84,44 @@ async function mainPrompt() {
           "View All Employees",
           "View All Departments",
           "View All Roles",
-          // "Add a Department",
+          "Add a Department",
+          // "Add a Role",
+          // "Add an Employee",
           "Exit"
         ]
       }
     ])
 };
 
-
 async function mainQuestions() {
   let exitLoop = false;
   while (!exitLoop) {
     const prompt = await mainPrompt();
-
     switch (prompt.action) {
-
       case 'View All Employees': {
         await viewAllEmployees();
         break;
       }
-
       case 'View All Departments': {
         await viewAllDepartments();
         break;
       }
-
       case 'View All Roles': {
         await viewAllRoles();
         break;
       }
-
-      // case 'Add a Department': {
-      //   const newDepartmentName = await getDepartmentInfo();
-      //   await addDepartment(newDepartmentName);
-      //   break;
-      // }
-
+      case 'Add a Department': {
+        const newDepartmentName = await getDepartmentInfo();
+        await addDepartment(newDepartmentName);
+        break;
+      }
       case 'Exit': {
         exitLoop = true;
-        process.exit(0); // successful exit
+        process.exit(0);
         return;
       }
-
       default:
-        console.log(`Internal warning. Action ${prompt.action} is not yet defined`);
+        console.log(`Error: ${prompt.action}`);
     };
   };
 };
