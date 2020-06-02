@@ -14,7 +14,7 @@ let db = new Database({
 
 //------------------------------------VIEWING INFORMATION queries-----------------//
 // SELECT * FROM department;
-async function viewAllDepartments() {
+async function viewAllDepts() {
   let query = "SELECT * FROM department";
   const rows = await db.query(query);
   console.table(rows);
@@ -37,36 +37,37 @@ async function viewAllEmployees() {
 
 //-------------------------------DEPARTMENT INFORMATION-----------------------------//
 //----GETTING ALL DEPARTMENT NAMES----//
-async function getDepartmentNames() {
+async function getDeptNames() {
   let query = "SELECT name FROM department";
   const rows = await db.query(query);
-  let departments = [];
+  let depts = [];
   for (const row of rows) {
-    departments.push(row.name);
+    depts.push(row.name);
   }
-  return departments;
+  return depts;
 };
 //----FINDS DEPARTMENT BY ID----//
-async function getDepartmentId(departmentName) {
+async function getDeptId(deptName) {
   let query = "SELECT * FROM department WHERE department.name=?";
-  let args = [departmentName];
+  let args = [deptName];
   const rows = await db.query(query, args);
   return rows[0].id;
 };
-async function addDepartment(departmentInfo) {
-  const departmentName = departmentInfo.departmentName;
+async function addDept(deptInfo) {
+  const deptName = deptInfo.deptName;
   let query = 'INSERT into department (name) VALUES (?)';
-  let args = [departmentName];
+  let args = [deptName];
   const rows = await db.query(query, args);
-  console.log(`Added department named ${departmentName}`);
+  console.log(`Added department named ${deptName}`);
 };
-async function getDepartmentInfo() {
+//---PROMPTS FOR NEW DEPARTMENT---//
+async function getDeptInfo() {
   return inquirer
     .prompt([
       {
         type: "input",
         message: "What is the name of the new department?",
-        name: "departmentName"
+        name: "deptName"
       }
     ])
 };
@@ -87,16 +88,16 @@ async function getRoleId(roleName) {
   return rows[0].id;
 };
 async function addRole(roleInfo) {
-  const departmentId = await getDepartmentId(roleInfo.departmentName);
+  const deptId = await getDeptId(roleInfo.deptName);
   const salary = roleInfo.salary;
   const title = roleInfo.roleName;
   let query = 'INSERT into role (title, salary, department_id) VALUES (?,?,?)';
-  let args = [title, salary, departmentId];
+  let args = [title, salary, deptId];
   const rows = await db.query(query, args);
   console.log(`Added role ${title}`);
 };
 async function getRoleInfo() {
-  const departments = await getDepartmentNames();
+  const depts = await getDeptNames();
   return inquirer
     .prompt([
       {
@@ -112,9 +113,9 @@ async function getRoleInfo() {
       {
         type: "list",
         message: "Which department uses this role?",
-        name: "departmentName",
+        name: "deptName",
         choices: [
-          ...departments
+          ...depts
         ]
       }
     ])
@@ -152,7 +153,7 @@ async function mainQuestions() {
         break;
       }
       case 'View All Departments': {
-        await viewAllDepartments();
+        await viewAllDepts();
         break;
       }
       case 'View All Roles': {
@@ -160,8 +161,8 @@ async function mainQuestions() {
         break;
       }
       case 'Add a Department': {
-        const newDepartmentName = await getDepartmentInfo();
-        await addDepartment(newDepartmentName);
+        const newDeptName = await getDeptInfo();
+        await addDept(newDeptName);
         break;
       }
       case 'Add a Role': {
