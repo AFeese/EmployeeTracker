@@ -70,6 +70,55 @@ async function getDepartmentInfo() {
       }
     ])
 };
+//------------------------------------ROLE INFORMATION------------------------------//
+async function getRoles() {
+  let query = "SELECT title FROM role";
+  const rows = await db.query(query);
+  let roles = [];
+  for (const row of rows) {
+    roles.push(row.title);
+  }
+  return roles;
+};
+async function getRoleId(roleName) {
+  let query = "SELECT * FROM role WHERE role.title=?";
+  let args = [roleName];
+  const rows = await db.query(query, args);
+  return rows[0].id;
+};
+async function addRole(roleInfo) {
+  const departmentId = await getDepartmentId(roleInfo.departmentName);
+  const salary = roleInfo.salary;
+  const title = roleInfo.roleName;
+  let query = 'INSERT into role (title, salary, department_id) VALUES (?,?,?)';
+  let args = [title, salary, departmentId];
+  const rows = await db.query(query, args);
+  console.log(`Added role ${title}`);
+};
+async function getRoleInfo() {
+  const departments = await getDepartmentNames();
+  return inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the title of the new role?",
+        name: "roleName"
+      },
+      {
+        type: "input",
+        message: "What is the salary of the new role?",
+        name: "salary"
+      },
+      {
+        type: "list",
+        message: "Which department uses this role?",
+        name: "departmentName",
+        choices: [
+          ...departments
+        ]
+      }
+    ])
+};
 
 
 //-------------------------------------MAIN QUESTIONS------------------------------//
@@ -85,7 +134,7 @@ async function mainPrompt() {
           "View All Departments",
           "View All Roles",
           "Add a Department",
-          // "Add a Role",
+          "Add a Role",
           // "Add an Employee",
           "Exit"
         ]
@@ -115,10 +164,16 @@ async function mainQuestions() {
         await addDepartment(newDepartmentName);
         break;
       }
+      case 'Add a Role': {
+        const newRole = await getRoleInfo();
+        console.log("add a role");
+        await addRole(newRole);
+        break;
+      }
       case 'Exit': {
         exitLoop = true;
         process.exit(0);
-        return;
+        // return;
       }
       default:
         console.log(`Error: ${prompt.action}`);
