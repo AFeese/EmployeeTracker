@@ -220,6 +220,7 @@ async function mainPrompt() {
           "Add a Department",
           "Add a Role",
           "Add an Employee",
+          // "Remove an Employee",
           "Exit"
         ]
       }
@@ -259,11 +260,11 @@ async function mainQuestions() {
         await addEmployee(newEmployee);
         break;
       }
-      case 'Remove an Employee': {
-        const employee = await getRemoveEmployeeInfo();
-        await removeEmployee(employee);
-        break;
-      }
+      // case 'Remove an Employee': {
+      //   const employee = await getRemoveEmployeeInfo();
+      //   await removeEmployee(employee);
+      //   break;
+      // }
       case 'Exit': {
         exitLoop = true;
         process.exit(0);
